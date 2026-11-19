@@ -656,7 +656,7 @@ onUpdate(()=>{if(sh&&inGame()&&!ov&&!vn&&!lu)drawBag();if(lu>0&&!mn&&qt<=0)luUI(
 let toLobbyLocal=_=>{NT.on=0;NT.lobby=1;NT.spc=0;NT.dying=0;NT.fin=0;NT.finW="";NT.rw="";NT.rndE=0;NT.rnd=0;NT.sc=[0,0];NT.pd=0;NT.safe=0;NT.lm=null;NT.lby=0;ov=vn=wpn=sh=lu=cf=0;K={};J={};NT.rp=NT.rd=null;NT.rb=[];NT.ob=[];NT.ofb=[];ol=6;mn=1;sv()},
 v3toast=m=>{NT.toast={m,l:140}},
 sendLob=()=>{NT.lm={mode:NT.mode,df,mp:NT.mode=="coop"?cmp:0,rounds:NT.rounds};rel({t:"lob",mode:NT.mode,df,mp:NT.mode=="coop"?cmp:0,rounds:NT.rounds})},
-startNow=()=>{send({t:"newmatch",mode:NT.mode,df,mp:NT.mode=="coop"?cmp:0,rounds:NT.rounds})},
+startNow=()=>{let lm=NT.role=="host"?null:NT.lm;send({t:"newmatch",mode:lm?lm.mode:NT.mode,df:lm?lm.df:df,mp:lm?lm.mp:(NT.mode=="coop"?cmp:0),rounds:lm?lm.rounds:NT.rounds})},
 bye=_=>{try{send({t:"bye"})}catch(e){}closeWs();NT.lobby=0;NT.on=0;NT.peerLive=0;NT.peerLeft=0;NT.gone=0;NT.invt=null;NT.spc=0;NT.dying=0;NT.fin=0;NT.rndE=0;ov=vn=wpn=sh=lu=cf=0;ol=1;sv()},
 escOl=_=>{if(ol==7)ol=6;else if(ol==6)bye()},
 peerGoneTag=(tag,hard)=>{NT.peerLive=0;NT.peerLeft=1;NT.remTag=tag||NT.remTag;NT.rp=NT.rd=null;NT.rb=[];NT.ob=[];NT.ofb=[];NT.pd=0;v3toast(hard?"PARTNER LEFT THE MATCH":"PARTNER DISCONNECTED - the squad lobby is open")},
@@ -746,7 +746,8 @@ let lobDraw=_=>{R(0,0,400,400,"#0e1220");
   btn(92,330,112,36,"FRIENDS","#89dceb","bold 11px sans-serif");
   if(NT.role=="host"){if(!NT.peerLive){R(212,330,170,36,"#181825","#45475a",2);g.font="bold 11px sans-serif";T("WAITING FOR FRIEND",297,350,"#585b70")}
     else{R(216,336,166,48,"#b39a1e");R(212,328,166,48,"#ffd42d");g.font="bold 17px sans-serif";T("PLAY",295,358,"#11111b")}}
-  else{R(212,330,170,36,"#181825","#45475a",2);g.font="bold 11px sans-serif";T(NT.peerLive?"WAITING FOR HOST":"WAITING FOR FRIEND",297,350,"#585b70")}},
+  else if(NT.peerLive){R(216,336,166,48,"#b39a1e");R(212,328,166,48,"#ffd42d");g.font="bold 17px sans-serif";T("START",295,358,"#11111b")}
+  else{R(212,330,170,36,"#181825","#45475a",2);g.font="bold 11px sans-serif";T("WAITING FOR FRIEND",297,350,"#585b70")}},
 lobClick=_=>{
   if(H(8,14,40,26)){bye();return}
   if(NT.role=="host"){
@@ -754,8 +755,8 @@ lobClick=_=>{
     if(H(204,166,176,52)&&NT.mode!="coop"){NT.mode="coop";sendLob();return}
     if(NT.mode=="1v1"){for(let i=0;i<3;i++)if(H(118+i*56,240,52,24)){NT.rounds=[1,3,5][i];sendLob();return}}
     else{D.forEach((v,i)=>{if(H(44+i*105,240,100,24)){df=i;sv();sendLob()}});if(H(130,272,24,22)){cmp=M.max(0,cmp-1);sv();sendLob();return}if(H(246,272,24,22)){cmp=M.min(mxM(),cmp+1);sv();sendLob();return}}
-    if(NT.peerLive&&H(212,328,166,48)){startNow();v3toast("STARTING MATCH");return}
   }
+  if(NT.peerLive&&H(212,328,166,48)){startNow();v3toast(NT.role=="host"?"STARTING MATCH":"STARTING MATCH (host settings)");return}
   if(H(16,330,72,36)){bye();return}
   if(H(92,330,112,36)){ol=7;NT.ferr="";NT.fq=0;send({t:"friends"});return}},
 frDraw=_=>{R(0,0,400,400,"#0e1220");
